@@ -2,11 +2,6 @@
 
 	const SELF = EventBus.target.KEYBOARD;
 
-	// possible fix for focus hijacking which break the shortcuts
-	Native.Window.onFocus(() => {
-		document.dispatchEvent(new Event('focus'));
-	});
-
 	// prevent space from scrolling the explorer
 	window.onkeydown = (event) => {
 		if (event.target.tagName.toUpperCase() == 'INPUT') return; // ignore key presses in the search box

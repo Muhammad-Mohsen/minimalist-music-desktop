@@ -1,57 +1,13 @@
 {
+	"$schema": "https://schema.tauri.app/config/2",
+	"productName": "Minimalist Music",
+	"version": "2.0.0",
+	"identifier": "com.minimalist.music",
 	"build": {
-		"beforeDevCommand": "",
-		"beforeBuildCommand": "",
-		"devPath": "../src",
-		"distDir": "../src",
-		"withGlobalTauri": true
+		"frontendDist": "../src"
 	},
-	"package": {
-		"productName": "Minimalist Music",
-		"version": "1.4.3"
-	},
-	"tauri": {
-		"allowlist": {
-			"shell": {
-				"open": true
-			},
-			"window": {
-				"close": true,
-				"minimize": true,
-				"startDragging": true,
-				"setSize": true,
-				"setTitle": true
-			},
-			"fs": {
-				"all": true,
-				"scope": ["**"]
-			},
-			"dialog": {
-				"open": true
-			},
-			"path": {
-				"all": true
-			},
-			"protocol": {
-				"asset": true,
-				"assetScope": ["**"]
-			}
-		},
-		"bundle": {
-			"active": true,
-			"targets": "all",
-			"identifier": "com.minimalist.music.tauri",
-			"icon": [
-				"icons/32x32.png",
-				"icons/128x128.png",
-				"icons/128x128@2x.png",
-				"icons/icon.icns",
-				"icons/icon.ico"
-			]
-		},
-		"security": {
-			"csp": null
-		},
+	"app": {
+		"withGlobalTauri": true,
 		"windows": [
 			{
 				"fullscreen": false,
@@ -61,8 +17,29 @@
 				"width": 550,
 				"height": 213,
 				"decorations": false,
-				"transparent": true
+				"transparent": true,
+				"shadow": false
 			}
+		],
+		"security": {
+			"assetProtocol": {
+				"scope": [
+					"**"
+				],
+				"enable": true
+			},
+			"csp": null
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
 		]
 	}
 }

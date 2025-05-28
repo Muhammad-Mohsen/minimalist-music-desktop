@@ -100,6 +100,10 @@ explorer file:hover {
 }
 [state-root-dir] .lib { display: none; }
 
+@media (max-height: 720px) {
+	.lib { opacity: 0; }
+}
+
 .lib i {
 	margin-top: -16px;
 	font-size: 128px;

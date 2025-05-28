@@ -7,6 +7,8 @@ var Player = (() => {
 	const VOLUME_JUMP = .1;
 	const SEEKING_ATTR = 'seeking';
 
+	let lastProgressBarUpdate; // to throttle native calls
+
 	const ui = {
 		title: document.querySelector('#title'),
 		albumArtist: document.querySelector('#album-artist'),
@@ -31,21 +33,19 @@ var Player = (() => {
 			.is(EventBus.type.PLAY_TRACK, async () => {
 				const path = State.get(State.key.TRACK);
 
-				loadingIndicator(true);
-
-				load(path, true);
+				load(path, 'autoplay');
 				Playlist.set(await Explorer.listTracks());
 			})
 			.is(EventBus.type.RESTORE_STATE, async () => {
 				const path = State.get(State.key.TRACK);
 				const currentTime = parseInt(State.get(State.key.SEEK)) || 0;
+				const duration = parseInt(State.get(State.key.DURATION)) || 100;
 
-				loadingIndicator(true);
-
+				load(path);
 				Playlist.set(await Explorer.listTracks());
-				await load(path, false);
-
 				audio.currentTime = currentTime;
+				seek(currentTime, duration);
+
 				onVolumeChange(parseFloat(State.get(State.key.VOLUME)));
 				shuffle(State.get(State.key.SHUFFLE));
 				repeat(State.get(State.key.REPEAT));
@@ -94,16 +94,17 @@ var Player = (() => {
 		if (!ui.seek.hasAttribute(SEEKING_ATTR)) seek(audio.currentTime);
 	}
 
-	async function load(path, auto) {
+	function load(path, autoplay) {
+		if (!initialized()) return albumArtist(State.get(State.key.ALBUM)); // show quote
+
+		loadingIndicator(true);
 		const src = Native.FS.pathToSrc(path);
 
 		audio.pause();
 		seek(0);
 		audio.src = src;
-		audio.autoplay = auto;
-
-		if (initialized()) title(); // immediately show title (whilte waiting for the metadata)
-		else albumArtist(State.get(State.key.ALBUM)); // show quote
+		audio.autoplay = !!autoplay;
+		title(); // immediately show title (while waiting for the metadata)
 	}
 
 	// PLAYBACK CONTROLS
@@ -115,6 +116,7 @@ var Player = (() => {
 			: (audio.paused ? audio.play() : audio.pause());
 
 		ui.playPause.classList.toggle('pause', !audio.paused);
+		progressBar('force');
 
 		if (!suppress) EventBus.dispatch({ type: force ? EventBus.type.PLAY : EventBus.type.PAUSE, target: SELF });
 	}
@@ -124,20 +126,18 @@ var Player = (() => {
 		const path = Playlist.getNext(onComplete);
 		if (!path) return;
 
-		loadingIndicator(true);
 		State.set(State.key.TRACK, path);
+		load(path, 'autoplay');
 		EventBus.dispatch({ type: EventBus.type.PLAY_TRACK, target: SELF });
-		load(path, true);
 	}
 	function playPrev() {
 		if (!initialized()) return;
 
-		const path = Playlist.getPrev(true);
+		const path = Playlist.getPrev();
 		if (!path) return;
 
-		loadingIndicator(true);
 		State.set(State.key.TRACK, path);
-		load(path, true);
+		load(path, 'autoplay');
 		EventBus.dispatch({ type: EventBus.type.PLAY_TRACK, target: SELF });
 	}
 	function ff() {
@@ -184,11 +184,14 @@ var Player = (() => {
 		if (duration) {
 			ui.seek.max = duration;
 			ui.duration.innerHTML = readableTime(duration);
+			State.set(State.key.DURATION, duration);
 		}
 
 		ui.position.innerHTML = readableTime(position);
 		ui.seek.value = position;
 		State.set(State.key.SEEK, position);
+
+		progressBar();
 	}
 	function onSeekMouseDown() {
 		ui.seek.setAttribute(SEEKING_ATTR, true);
@@ -206,7 +209,7 @@ var Player = (() => {
 		audio.muted = false;
 	}
 
-	// UI TEXT STUFF
+	// UI STUFF
 	function title(title) {
 		ui.title.innerHTML = title || Native.FS.readablePath(State.get(State.key.TRACK));
 		ui.title.setAttribute('title', ui.title.textContent);
@@ -235,6 +238,12 @@ var Player = (() => {
 		ui.albumArtist.classList.toggle('blur', force);
 		ui.duration.classList.toggle('blur', force);
 		if (force) ui.artwork.classList.add('hidden');
+	}
+	function progressBar(force) {
+		// must take absolute value because the seek value can arbitrarily change (for example, manual seeking or when changing tracks)
+		if (!force && Math.abs(ui.seek.value - lastProgressBarUpdate) < 1) return;
+		Native.Window.progressBar(audio.paused ? 'paused' : 'normal', ui.seek.value / ui.seek.max * 100);
+		lastProgressBarUpdate = ui.seek.value;
 	}
 
 	function initialized() { return State.get(State.key.TRACK) != 'null'; }
