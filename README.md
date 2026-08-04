@@ -1,5 +1,5 @@
 # Minimalist Music
-Tauri version of the minimalist music player
+Desktop version of the minimalist music player. Currently uses `NeutralinoJS`.
 
 ## Features
 Nothing fancy, as the name implies
@@ -13,6 +13,7 @@ Nothing fancy, as the name implies
 	- <kbd>**←**</kbd> / <kbd>**→**</kbd>: Seek jump by 10 seconds
 	- <kbd>**CTRL**</kbd> + <kbd>**←**</kbd> / <kbd>**CTRL**</kbd> + <kbd>**→**</kbd>: Play next/prev
 	- <kbd>**CTRL**</kbd> + <kbd>**F**</kbd>: Search
+	- <kbd>**F5**</kbd>: Refresh the metadata for the current track
 
 ## Screenshots
 ![Screenshots](screenshots/screenshots.png)
@@ -20,19 +21,19 @@ Nothing fancy, as the name implies
 ## Develop
 ### Run Locally
 - Install NodeJS
-- Install Rust by following the instructions [here](https://tauri.app/v1/guides/getting-started/prerequisites)
-- Then, run the commmand `npx tauri dev`
+- Run `neu run`
 
 ### Build
-Run the command `npx tauri build`
-
-### App Icons
-Run `npx tauri icon` (with an `app-icon.png` at the root) to generate app icons
+Run the command `neu build --release`
 
 ### Notes
 #### Using WebWorkers
-I couldn't use webworkers for doing the visualization because they don't have access to the AudioContext API
-And since I'm already storing the metadata, it just didn't matter to just move the music-metadata call to a webworker
+I couldn't use webworkers for doing the visualization because they don't have access to the AudioContext API\
+And since I'm already storing the metadata, it just didn't matter to just move the music-metadata call to a webworker.
+
+That has changed! The metadata is now read using a webworker that runs after the `loadeddata` event of the `audio` element fires.\
+This is to ensure the fastest click-to-play time.\
+The metadata is also cached in an indexedDB by `src` which is also accessed by the webworker.
 
 #### Metadata Library Comparison
 jsmediatags is at least twice as slow as music metadata browser

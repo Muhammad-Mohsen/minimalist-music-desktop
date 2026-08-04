@@ -1,38 +1,20 @@
-var MetadataStore = (function () {
-
-	let db;
-
-	async function getDB() {
-		db = db || await DB('metadataDB', 1)
+class MetadataStore {
+	constructor() {
+		new FluentDB('metadataDB', 1)
 			.objectStore('files', { keyPath: 'src' })
-			.open();
-
-		return db;
+			.open()
+			.then(db => this.db = db);
 	}
 
-	async function get(src) {
-		try {
-			const metadata = await (await getDB()).select('files', src);
-			return metadata;
-
-		} catch {} // not found
+	async getItem(src) {
+		return await this.db.select('files', src);
 	}
 
-	async function set(metadata) {
-		(await getDB()).insert('files', metadata);
+	async setItem(metadata) {
+		await this.db.upsert('files', metadata);
 	}
 
-	async function del(src) {
-		try {
-			(await getDB()).delete('files', src);
-
-		} catch {} // not found
+	async removeItem(src) {
+		await this.db.delete('files', src);
 	}
-
-	return {
-		get,
-		set,
-		del
-	}
-
-})();
+}

@@ -6,127 +6,32 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Minimalist Music</title>
 
-	<link rel="stylesheet" href="main/reset.css">
-	<link rel="stylesheet" href="main/icon-font.css">
-	<link rel="stylesheet" href="main/atomic.css">
-	<link rel="stylesheet" href="main/styles.css">
+	<link rel="stylesheet" href="./style.css">
+	<link rel="stylesheet" href="./assets/iconly/iconly.css">
 
-	<link rel="stylesheet" href="toolbar/breadcrumb-bar.css">
-	<link rel="stylesheet" href="explorer/explorer.css">
+	<script src="foundation/quotes.js"></script>
+
+	<script src="foundation/util.js"></script>
+	<script src="foundation/html-element-base.js"></script>
+	<script src="foundation/event-bus.js"></script>
+	<script src="foundation/native.js"></script>
+	<script src="foundation/state.js"></script>
+
+	<script src="components/app/app.js"></script>
+	<link rel="stylesheet" href="./components/app/app.css">
+
+	<script src="components/explorer/explorer.js"></script>
+	<link rel="stylesheet" href="./components/explorer/explorer.css">
+
+	<script src="components/toolbar/breadcrumb-bar.js"></script>
+	<link rel="stylesheet" href="./components/toolbar/breadcrumb-bar.css">
+
+	<script src="components/player/playlist.js"></script>
+	<script src="components/player/player.js"></script>
+	<script src="components/player/session.js"></script>
+	<link rel="stylesheet" href="./components/player/player.css">
 </head>
-<body onload="MainWindow.loaded()">
-<main data-tauri-drag-region>
-
-	<img id="artwork" alt="Artwork">
-
-	<!-- WINDOW CONTROLS -->
-	<window-controls class="window-controls">
-		<button class="material-symbols-outlined" onclick="MainWindow.minimize()">remove</button>
-		<button class="material-symbols-outlined close-window" onclick="MainWindow.close()">close</button>
-	</window-controls>
-
-	<!-- TRACK INFO -->
-	<track-info class="layer-controls" data-tauri-drag-region>
-		<label id="title" class="fw-l">Minimalist Music</label>
-		<label id="album-artist" class="c-prime ff-m trans-sl">Hello...</label>
-	</track-info>
-
-	<!-- default max set to 9999 so that we don't get division by 0 errors when the file starts playing but the metadata didn't yet load -->
-	<input type="range" id="seek" class="layer-controls" step=".01" max="9999" onmousedown="Player.onSeekMouseDown()" oninput="Player.onSeekChange()" onmouseup="Player.onSeekMouseUp()">
-
-	<!-- CONTROLS -->
-	<controls class="row centered controls-container">
-		<div class="volume-container row center">
-			<button id="volume-icon" class="material-symbols-outlined" onclick="Player.toggleMute()">volume_up</button>
-			<!-- <div class="volume-slider transparent"></div> -->
-			<input type="range" max="1" step="0.05" id="volume-level" class="volume-slider" oninput="Player.onVolumeChange()">
-		</div>
-		<button id="repeat-icon" class="material-symbols-outlined" onclick="Player.repeat()">repeat</button>
-
-		<button class="material-symbols-outlined sym-l" onclick="Player.playPrev()">skip_previous</button>
-		<button id="play-pause" class="material-symbols-outlined fab c-sec" onclick="Player.playPause()"></button>
-		<button class="material-symbols-outlined sym-l" onclick="Player.playNext()">skip_next</button>
-
-		<button id="shuffle-icon" class="material-symbols-outlined" onclick="Player.shuffle()">shuffle</button>
-
-		<div class="row seek-container inert">
-			<div class="row fs-s fw-r c-fg-l ff-m">
-				<label id="current-position">--:--</label>
-				<label id="duration" class="c-fg trans-sl">--:--</label>
-			</div>
-		</div>
-
-	</controls>
-
-	<button class="expand material-symbols-outlined" onclick="MainWindow.expandCollapse()">expand_more</button>
-
-	<!-- TOOLBAR -->
-	<toolbar>
-		<breadcrumb-bar>
-			<!-- <button class="material-symbols-outlined">search</button> -->
-			<button class="material-symbols-outlined c-fg-l" onclick="BreadcrumbBar.up()">arrow_upward</button>
-			<crumb-list></crumb-list>
-		</breadcrumb-bar>
-		<!--
-			<queue-bar>
-				<button id="cancel-playlist"></button>
-				<button id="add-playlist"></button>
-				<button id="play-playlist"></button>
-			</queue-bar>
-		-->
-	</toolbar>
-
-	<!-- EXPLORER - two to do transition animations...actually three are needed -->
-	<explorer-container>
-		<explorer data-tauri-drag-region class="current" data-dir=""></explorer>
-		<explorer data-tauri-drag-region class="out" data-dir=""></explorer>
-		<explorer data-tauri-drag-region class="in" data-dir=""></explorer>
-	</explorer-container>
-
-	<!-- ROOT FOLDER CONFIGURATION -->
-	<button class="lib" onclick="Explorer.setRootDir()">
-		<i class="material-symbols-outlined">library_music</i>
-		<!-- CHOOSE LIBRARY FOLDER -->
-		<p>Please choose the root folder<br>of your music library.</p>
-	</button>
-
-	<bottom-bar class="fab">
-		<button class="material-symbols-outlined" onclick="Explorer.setRootDir()">library_music</button>
-		<button class="material-symbols-outlined" onclick="Explorer.scrollToSelected()">target</button>
-		<button class="material-symbols-outlined" onclick="Explorer.toggleSearchMode(true)">search</button>
-		<button class="material-symbols-outlined" onclick="MainWindow.expandCollapse()">expand_less</button>
-	</bottom-bar>
-
-	<search-bar class="fab">
-		<input oninput="Explorer.search()" placeholder="Search">
-		<button class="material-symbols-outlined" onclick="Explorer.toggleSearchMode(false)">close</button>
-	</search-bar>
-
-	<!-- JS -->
-	<script src="core/quotes.js"></script>
-
-	<script src="core/util.js"></script>
-	<!-- <script src="core/db.js"></script> -->
-	<script src="core/event-bus.js"></script>
-	<script src="core/native.js"></script>
-	<script src="core/prefs.js"></script>
-	<script src="core/state.js"></script>
-	<script src="core/shortcuts.js"></script>
-
-	<!-- <script src="metadata/metadata-store.js"></script>
-	<script src="metadata/music-metadata-browser.js"></script>
-	<script src="metadata/metadata.js"></script> -->
-
-	<script src="explorer/explorer.js"></script>
-	<script src="toolbar/breadcrumb-bar.js"></script>
-
-	<script src="player/playlist.js"></script>
-	<script src="player/player.js"></script>
-	<script src="player/session.js"></script>
-
-
-	<script src="main/main.js"></script>
-
-</main>
+<body>
+	<music-app></music-app>
 </body>
 </html>

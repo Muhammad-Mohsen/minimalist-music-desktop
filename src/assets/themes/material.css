@@ -7,7 +7,7 @@
 	--red-t: #EB575777;
 }
 
-@property --grad-stop {
+@property --gradient-stop {
 	syntax: "<percentage>";
 	initial-value: 0%;
 	inherits: false;
@@ -16,7 +16,7 @@
 main {
 	border-radius: 12px;
 	border: 2px solid var(--prime-l);
-	background: var(--bg);
+	background: var(--background);
 	font-family: Prompt;
 }
 window-controls button {
@@ -33,7 +33,7 @@ window-controls button:hover {
 }
 button.close-window:hover {
 	background: var(--red) !important;
-	color: var(--bg) !important;
+	color: var(--background) !important;
 }
 
 /* SLIDER */
@@ -47,7 +47,7 @@ input[type=range]::-webkit-slider-thumb {
 	appearance: none;
 	width: 6px;
 	height: 12px;
-	border: 2px solid var(--bg);
+	border: 2px solid var(--background);
 	background: var(--prime-d);
 	transition: .2s;
 }
@@ -59,12 +59,12 @@ button {
 	min-height: 32px;
 	border-radius: 50px;
 	border: none;
-	background: var(--bg);
-	background: radial-gradient(circle at center, var(--prime-l) var(--grad-stop), var(--bg) var(--grad-stop));
-	transition: all .2s, box-shadow .5s .1s, --grad-stop .4s;
+	background: var(--background);
+	background: radial-gradient(circle at center, var(--prime-l) var(--gradient-stop), var(--background) var(--gradient-stop));
+	transition: all .2s, box-shadow .5s .1s, --gradient-stop .4s;
 }
 button:not(.fab):hover {
-	--grad-stop: 100%;
+	--gradient-stop: 100%;
 	box-shadow: 0 0 0 2px var(--prime-l);
 }
 

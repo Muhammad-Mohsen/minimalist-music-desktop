@@ -1,0 +1,56 @@
+{
+	"$schema": "https://raw.githubusercontent.com/neutralinojs/neutralinojs/main/schemas/neutralino.config.schema.json",
+	"applicationId": "com.minimalist.music",
+	"version": "1.0.0",
+	"applicationName": "Minimalist Music",
+	"applicationIcon": "src/assets/images/appIcon.png",
+	"author": "Muhammad Mohsen",
+	"description": "A minimalist, explorer-based, open-source music player",
+	"defaultMode": "window",
+	"port": 0,
+	"documentRoot": "/src/",
+	"url": "/",
+	"enableServer": true,
+	"enableNativeAPI": true,
+	"tokenSecurity": "one-time",
+	"logging": {
+		"enabled": true,
+		"writeToLogFile": false
+	},
+	"nativeAllowList": [
+		"app.*",
+		"os.*",
+		"window.*",
+		"filesystem.*",
+		"server.mount",
+		"custom.*",
+		"debug.log"
+	],
+	"globalVariables": {},
+	"modes": {
+		"window": {
+			"title": "minimalist-music",
+			"width": 576,
+			"height": 220,
+			"minWidth": 576,
+			"minHeight": 220,
+			"resizable": false,
+			"center": true,
+			"icon": "/src/assets/images/appIcon.png",
+			"borderless": true,
+			"transparent": true,
+			"useSavedState": false,
+			"exitProcessOnClose": true,
+			"injectClientLibrary": true,
+			"enableInspector": true
+		}
+	},
+	"cli": {
+		"binaryName": "minimalist-music-desktop",
+		"resourcesPath": "/src/",
+		"extensionsPath": "/extensions/",
+		"clientLibrary": "/src/assets/neutralino.js",
+		"binaryVersion": "6.9.0",
+		"clientVersion": "6.9.0"
+	}
+}
