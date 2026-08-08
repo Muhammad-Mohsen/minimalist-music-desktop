@@ -107,7 +107,6 @@ class Explorer extends HTMLElementBase {
 		const root = await Native.FS.openRootDirDialog();
 		if (!root) return;
 
-		// await Native.FS.startMediaServer(root);
 		State.set(State.key.ROOT_DIR, root);
 		this.goto(root);
 	}
@@ -117,9 +116,18 @@ class Explorer extends HTMLElementBase {
 		// navigate to selected dir
 		const track = State.get(State.key.TRACK);
 		const dir = track.split(Native.FS.PATH_SEPARATOR).slice(0, -1).join(Native.FS.PATH_SEPARATOR);
-		this.goto(dir);
+		if (dir != State.get(State.key.CURRENT_DIR)) {
+			this.goto(dir);
+			return setTimeout(() => this.onScrollToSelectedClick(), 300);
+		}
 
-		document.querySelector('.selected')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		const selected = document.querySelector('.selected');
+		if (!selected) return;
+
+		// using scrollIntoView scrolls the top container!!
+		const mid = (this.explorer.clientHeight - 64) / 2; // 64 is the bottom padding
+		const scroll = selected.offsetTop - this.explorer.offsetTop;
+		this.explorer.scrollTo({ top: scroll - mid, behavior: 'smooth' });
 	}
 
 	// FS
@@ -139,7 +147,7 @@ class Explorer extends HTMLElementBase {
 	}
 	path2src(path) {
 		const relativePath = path.substring(State.get(State.key.ROOT_DIR).length + 1);
-		return `${location.origin}/%virtual%/${encodeURIComponent(relativePath)}`;
+		return `${location.origin}/%virtual%/${relativePath}`;
 	}
 
 	// UI
@@ -191,7 +199,7 @@ class Explorer extends HTMLElementBase {
 				${State.get(State.key.TRACK) == file.path ? ' selected' : ''}">
 				${file.name}
 			</button>
-		`.minify();
+		`.replace(/\t|\n/g, ''); // can't use minify() because it breaks paths that have two or more consecutive spaces
 	}
 	#renderCrumb(path) {
 		const label = path.split(Native.FS.PATH_SEPARATOR).pop();

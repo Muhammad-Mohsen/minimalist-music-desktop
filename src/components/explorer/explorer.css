@@ -2,9 +2,8 @@ body:not([state-root-dir]) explorer { display: none; }
 
 music-explorer {
 	explorer {
-		display: flex;
-		flex-direction: column;
-		height: 464px;
+		display: block;
+		height: 456px;
 		padding-bottom: 64px;
 		overflow: hidden auto;
 		scrollbar-width: none;
@@ -46,7 +45,7 @@ music-explorer {
 	/* mask-image isn't supported by view transitions, so we need an extra element */
 	explorer-mask {
 		position: absolute;
-		inset: 239px 0 0;
+		inset: 243px 0 1px;
 		border-radius: 0 0 12px 12px;
 		background: linear-gradient(var(--background), transparent 10px 90%, var(--background));
 		pointer-events: none;
@@ -122,7 +121,7 @@ music-explorer {
 		display: flex;
 		position: absolute;
 		top: 644px;
-		left: calc(50% - 80px);
+		left: calc(50% - 85px);
 		padding: 4px;
 		border-radius: 50px;
 		box-shadow: var(--shadow-accent-inner), var(--shadow-outer);
