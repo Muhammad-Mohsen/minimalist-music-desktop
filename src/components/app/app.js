@@ -17,7 +17,13 @@ class App extends HTMLElementBase {
 		this.enableShortcuts();
 		Native.Window.setDraggableRegion('draggable-region');
 
-		State.restore().then(() => EventBus.dispatch({ target: this.TARGET, type: EventBus.type.RESTORE_STATE }));
+		State.restore().then(async () => {
+			if (State.get(State.key.ROOT_DIR))
+				try { await Native.FS.mountRootDir(State.get(State.key.ROOT_DIR)); }
+				catch {} // already mounted
+
+			EventBus.dispatch({ target: this.TARGET, type: EventBus.type.RESTORE_STATE })
+		});
 	}
 
 	close() {
@@ -32,7 +38,7 @@ class App extends HTMLElementBase {
 
 		// animation
 		clearInterval(this.accordionAnimation); // clear the previous animation (if any)
-		this.accordionAnimation = easeIO(from, to, 300, (val) => Native.Window.height(Math.floor(val)));
+		this.accordionAnimation = easeIO(from, to, 300, (val) => Native.Window.setHeight(Math.floor(val)));
 
 		State.set(State.key.EXPANDED, target == 'expand');
 	}
@@ -54,22 +60,21 @@ class App extends HTMLElementBase {
 			event.stopPropagation();
 
 			when(event.code)
-				.is('Space', () => EventBus.dispatch({ type: EventBus.type.PLAY_PAUSE, target: TARGET }))
-				.is('Numpad0', () => EventBus.dispatch({ type: EventBus.type.FROM_THE_TOP, target: TARGET }))
+				.is('Space', () => EventBus.dispatch({ type: EventBus.type.PLAY_PAUSE, target: this.TARGET }))
+				.is('Numpad0', () => EventBus.dispatch({ type: EventBus.type.FROM_THE_TOP, target: this.TARGET }))
 				.is('ArrowLeft', () => {
-					if (event.ctrlKey) EventBus.dispatch({ type: EventBus.type.PLAY_PREV, target: TARGET })
-					else EventBus.dispatch({ type: EventBus.type.RW, target: TARGET })
+					if (event.ctrlKey) EventBus.dispatch({ type: EventBus.type.PLAY_PREV, target: this.TARGET })
+					else EventBus.dispatch({ type: EventBus.type.RW, target: this.TARGET })
 				})
 				.is('ArrowRight', () => {
-					if (event.ctrlKey) EventBus.dispatch({ type: EventBus.type.PLAY_NEXT, target: TARGET })
-					else EventBus.dispatch({ type: EventBus.type.FF, target: TARGET })
+					if (event.ctrlKey) EventBus.dispatch({ type: EventBus.type.PLAY_NEXT, target: this.TARGET })
+					else EventBus.dispatch({ type: EventBus.type.FF, target: this.TARGET })
 				})
-				.is('NumpadAdd', () => EventBus.dispatch({ type: EventBus.type.VOLUME_UP, target: TARGET }))
-				.is('NumpadSubtract', () => EventBus.dispatch({ type: EventBus.type.VOLUME_DOWN, target: TARGET }))
+				.is('NumpadAdd', () => EventBus.dispatch({ type: EventBus.type.VOLUME_UP, target: this.TARGET }))
+				.is('NumpadSubtract', () => EventBus.dispatch({ type: EventBus.type.VOLUME_DOWN, target: this.TARGET }))
 				.is('KeyF', () => {
-					if (event.ctrlKey) EventBus.dispatch({ type: EventBus.type.SEARCH, target: TARGET });
+					if (event.ctrlKey) EventBus.dispatch({ type: EventBus.type.SEARCH, target: this.TARGET });
 				})
-				.is('F5', () => EventBus.dispatch({ type: EventBus.type.METADATA_CLEAR, target: TARGET }));
 		}
 	}
 
@@ -80,9 +85,9 @@ class App extends HTMLElementBase {
 				<button class="icon i-close" onclick="${this}.close()"></button>
 			</window-controls>
 
-			<music-player id="player"></music-player>
+			<music-player></music-player>
 			<button class="icon i-expand expand" onclick="${this}.resize('expand')"></button>
-			<music-explorer id="explorer"></music-explorer>
+			<music-explorer></music-explorer>
 		`);
 	}
 }
