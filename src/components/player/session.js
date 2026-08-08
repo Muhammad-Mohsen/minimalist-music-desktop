@@ -18,7 +18,11 @@ var Session = (() => {
 			title: metadata.title,
 			artist: metadata.artist || '',
 			album: metadata.album,
-			artwork: [{ src: metadata.artwork || '../assets/images/icon.png' }]
+			artwork: [{
+				src: metadata.images?.length
+					? `data:${metadata.images[0].mimeType};base64,${metadata.images[0].data.toBase64()}`
+					: images.LOGO
+			}]
 		});
 	}
 

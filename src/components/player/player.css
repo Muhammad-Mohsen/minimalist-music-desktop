@@ -8,6 +8,7 @@ music-player {
 		align-items: center;
 		gap: 8px;
 		padding-top: 8px;
+		z-index: 1;
 
 		#track-title, #album-artist {
 			max-width: 360px;
@@ -31,6 +32,7 @@ music-player {
 	#seek {
 		margin: 14px 14px 20px;
 		width: auto;
+		z-index: 1;
 	}
 
 	controls {
@@ -51,6 +53,7 @@ music-player {
 			opacity: 0;
 			pointer-events: none;
 			transition: .2s;
+			z-index: 1;
 		}
 		.volume-container:hover .volume-slider {
 			opacity: 1;

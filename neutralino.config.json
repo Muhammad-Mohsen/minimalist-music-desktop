@@ -7,7 +7,7 @@
 	"author": "Muhammad Mohsen",
 	"description": "A minimalist, explorer-based, open-source music player",
 	"defaultMode": "window",
-	"port": 0,
+	"port": 56989,
 	"documentRoot": "/src/",
 	"url": "/",
 	"enableServer": true,
@@ -42,7 +42,7 @@
 			"useSavedState": false,
 			"exitProcessOnClose": true,
 			"injectClientLibrary": true,
-			"enableInspector": true
+			"enableInspector": false
 		}
 	},
 	"cli": {

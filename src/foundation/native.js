@@ -1,44 +1,11 @@
 var Native = (() => {
 
 	Neutralino.init();
-
-	/**
-		const { port } = await Neutralino.custom.startMediaServer({
-			root: 'C:\\Users\\you\\Audiobooks',
-		});
-
-		const audio = document.getElementById('player');
-		audio.src = `http://127.0.0.1:${port}/${encodeURIComponent(filename)}`;
-
-		audio.addEventListener('timeupdate', () => {
-			Neutralino.custom.setTaskbarProgress({
-				completed: Math.floor(audio.currentTime),
-				total: Math.floor(audio.duration || 1),
-				state: 2,
-			});
-		});
-
-		await Neutralino.custom.setTaskbarThumbButtons({
-			buttons: [
-				{ tooltip: 'Previous', iconPath: 'D:\\Code\\personal\\minimalist-music-desktop\\src\\assets\\icons\\prev.ico' },
-				{ tooltip: 'Play/Pause', iconPath: 'D:\\Code\\personal\\minimalist-music-desktop\\src\\assets\\icons\\play.ico' },
-				{ tooltip: 'Next', iconPath: 'D:\\Code\\personal\\minimalist-music-desktop\\src\\assets\\icons\\next.ico' },
-			]
-		});
-		Neutralino.events.on('taskbarButtonClicked', (evt) => {
-			console.log('clicked button id', evt.detail);
-		});
-
-		// call when the app no longer needs streaming (or on shutdown)
-		await Neutralino.custom.stopMediaServer();
-	 */
+	Neutralino.window.setIcon('/src/assets/images/appIcon.png');
 
 	// FS
 	const PATH_SEPARATOR = '\/';
 	const AUDIO_EXT = /\.(mp3|ogg|aac|flac|wav|m4a|m4b)$/i;
-
-	let mediaServerPort;
-	let meiaServerRoot;
 
 	async function openRootDirDialog() {
 		const root = await Neutralino.os.showFolderDialog('Select Folder', {
@@ -47,8 +14,11 @@ var Native = (() => {
 
 		if (!root) return;
 
-		await Neutralino.server.mount('/%virtual%', root);
+		await mountRootDir(root);
 		return root;
+	}
+	function mountRootDir(root) {
+		return Neutralino.server.mount('/%virtual%', root);
 	}
 
 	async function listFiles(dir) {
@@ -75,23 +45,6 @@ var Native = (() => {
 		return files;
 	}
 
-	async function startMediaServer(root) {
-		const { port } = await Neutralino.custom.startMediaServer({ root });
-		mediaServerPort = port;
-		meiaServerRoot = root;
-		console.log('media server started on port', port);
-	}
-	async function stopMediaServer() {
-		await Neutralino.custom.stopMediaServer();
-		mediaServerPort = null;
-		meiaServerRoot = null;
-	}
-
-	function path2src(path) {
-		const relativePath = path.substring(meiaServerRoot.length + 1);
-		return `http://localhost:${mediaServerPort}/${encodeURIComponent(relativePath)}`;
-	}
-
 	function isAudio(file) { return file.name.match(AUDIO_EXT) != null; }
 	function isHidden(file) { return file.name.startsWith('.'); }
 	function isDir(file) { return file.isDirectory; }
@@ -104,29 +57,32 @@ var Native = (() => {
 	function closeWindow() {
 		Neutralino.app.exit();
 	}
-
 	function minimizeWindow() {
 		Neutralino.window.minimize();
 	}
-
 	function windowHeight(height) {
 		Neutralino.window.setSize({ width: 576, height });
 	}
-
 	function windowTitle(title) {
 		Neutralino.window.setTitle(title);
 	}
-
-	function windowProgressBar(status, progress) {
-		return Promise.resolve();
-	}
-
-	async function windowSetTaskbarThumbButtons(tooltips = ['Previous', 'Play/Pause', 'Next']) {
-		await Neutralino.custom.setTaskbarThumbButtons({ tooltips });
-	}
-
 	function windowSetDraggableRegion(region, exclusions) {
 		Neutralino.window.setDraggableRegion(region, { exclusions: exclusions || [] });
+	}
+
+	function taskbarSetProgress(state, value, max = 100) {
+		// 'normal' | 'paused' | 'error' | 'indeterminate' | 'none'
+		return Neutralino.custom.setTaskbarProgress({ state, value: Math.floor(value), max: Math.floor(max) });
+	}
+	function taskbarSetThumbButtons(buttons, handler) {
+		// button: { id: 101, tooltip: "Previous Track", icon: prevIconBase64 }
+		// const buttonId = event.detail.id;
+		// ...
+		if (handler) Neutralino.events.on('taskbarbuttonclick', handler);
+		return Neutralino.custom.setTaskbarButtons({ buttons });
+	}
+	function taskbarSetThumbnail(base64) {
+		return Neutralino.custom.setTaskbarThumbnail({ data: base64 });
 	}
 
 	return {
@@ -135,27 +91,28 @@ var Native = (() => {
 			AUDIO_EXT,
 
 			openRootDirDialog,
+			mountRootDir,
 			listFiles,
-			path2src,
 
 			isAudio,
 			isHidden,
 			isDir,
 
-			readablePath,
-
-			startMediaServer,
-			stopMediaServer,
+			readablePath
 		},
 
 		Window: {
-			title: windowTitle,
+			setTitle: windowTitle,
 			close: closeWindow,
 			minimize: minimizeWindow,
-			height: windowHeight,
-			progressBar: windowProgressBar,
-			setDraggableRegion: windowSetDraggableRegion,
-			setTaskbarThumbButtons: windowSetTaskbarThumbButtons,
+			setHeight: windowHeight,
+			setDraggableRegion: windowSetDraggableRegion
+		},
+
+		Taskbar: {
+			setProgress: taskbarSetProgress,
+			setThumbButtons: taskbarSetThumbButtons,
+			setThumbnail: taskbarSetThumbnail
 		}
 	};
 

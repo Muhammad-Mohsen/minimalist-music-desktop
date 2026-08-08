@@ -13,7 +13,6 @@ Nothing fancy, as the name implies
 	- <kbd>**←**</kbd> / <kbd>**→**</kbd>: Seek jump by 10 seconds
 	- <kbd>**CTRL**</kbd> + <kbd>**←**</kbd> / <kbd>**CTRL**</kbd> + <kbd>**→**</kbd>: Play next/prev
 	- <kbd>**CTRL**</kbd> + <kbd>**F**</kbd>: Search
-	- <kbd>**F5**</kbd>: Refresh the metadata for the current track
 
 ## Screenshots
 ![Screenshots](screenshots/screenshots.png)

@@ -15,33 +15,31 @@ class Player extends HTMLElementBase {
 
 		EventBus.subscribe((event) => this.#handle(event));
 
-		// this.metadataWorker.addEventListener('message', (event) => {
-		// 	const metadata = JSON.parse(event.data);
-		// 	this.setAlbumArtist(metadata.album, metadata.artist);
-		// 	this.setArtwork(metadata.artwork);
-		// 	this.setSeek(this.audio.currentTime || 0, metadata.duration || this.audio.duration); // the metadata library reported NaN for absolution.m4b!
-
-		// 	EventBus.dispatch({
-		// 		target: EventBus.target.PLAYER,
-		// 		type: EventBus.type.METADATA_UPDATE,
-		// 		data: metadata
-		// 	});
-
-		// 	this.loadingIndicator(false);
-		// });
-
 		this.audio.onended = () => {
 			this.playNext(true);
 		}
 		this.audio.onloadeddata = () => {
 			this.playPause(this.audio.autoplay);
-			// this.metadataWorker.postMessage({ type: EventBus.type.METADATA_FETCH, src: this.audio.src }); // fetch metadata after audio is loaded so as not to trip over each other
+			this.extractMetadata(this.audio.src);
 		}
 		this.audio.ontimeupdate = () => {
 			if (!this.seek.hasAttribute('seeking')) this.setSeek(this.audio.currentTime);
 		}
 
 		this.explorer = this.parentElement.querySelector('music-explorer');
+
+		Native.Taskbar.setThumbnail(images.LOGO);
+		Native.Taskbar.setThumbButtons([
+			{ id: 101, tooltip: 'Previous', icon: images.PREVIOUS },
+			{ id: 102, tooltip: 'Play', icon: images.PLAY },
+			{ id: 103, tooltip: 'Next', icon: images.NEXT }
+		],
+		(event) => {
+			const buttonId = event.detail.id;
+			if (buttonId == 101) this.playPrev();
+			if (buttonId == 102) this.playPause();
+			if (buttonId == 103) this.playNext();
+		});
 	}
 
 	async #handle(event) {
@@ -81,8 +79,8 @@ class Player extends HTMLElementBase {
 			.is(EventBus.type.FF, () => this.ff())
 			.is(EventBus.type.RW, () => this.rw())
 
-			.is(EventBus.type.VOLUME_DOWN, () => this.onVolumeChange(this.audio.volume - VOLUME_JUMP))
-			.is(EventBus.type.VOLUME_UP, () => this.onVolumeChange(this.audio.volume + VOLUME_JUMP))
+			.is(EventBus.type.VOLUME_DOWN, () => this.onVolumeChange(this.audio.volume - this.VOLUME_JUMP))
+			.is(EventBus.type.VOLUME_UP, () => this.onVolumeChange(this.audio.volume + this.VOLUME_JUMP))
 
 			.is(EventBus.type.METADATA_CLEAR, () => {}) // this.metadataWorker.postMessage({ type: EventBus.type.METADATA_CLEAR, src: this.audio.src }))
 	}
@@ -109,7 +107,13 @@ class Player extends HTMLElementBase {
 			: (this.audio.paused ? this.audio.play() : this.audio.pause());
 
 		this.playPauseButton.classList.toggle('pause', !this.audio.paused);
-		this.progressBar('force');
+		this.setProgressBar('force');
+
+		Native.Taskbar.setThumbButtons([
+			{ id: 101, tooltip: 'Previous', icon: images.PREVIOUS },
+			{ id: 102, tooltip: this.audio.paused ? 'Play' : 'Pause', icon: this.audio.paused ? images.PLAY : images.PAUSE },
+			{ id: 103, tooltip: 'Next', icon: images.NEXT }
+		]);
 
 		if (!suppress) EventBus.dispatch({ type: force ? EventBus.type.PLAY : EventBus.type.PAUSE, target: this.TARGET });
 	}
@@ -134,11 +138,11 @@ class Player extends HTMLElementBase {
 		EventBus.dispatch({ type: EventBus.type.PLAY_TRACK, target: this.TARGET });
 	}
 	ff() {
-		this.audio.currentTime += SEEK_JUMP
+		this.audio.currentTime += this.SEEK_JUMP
 		this.setSeek(this.audio.currentTime);
 	}
 	rw() {
-		this.audio.currentTime -= SEEK_JUMP
+		this.audio.currentTime -= this.SEEK_JUMP
 		this.setSeek(this.audio.currentTime);
 	}
 	shuffle(force) {
@@ -183,7 +187,7 @@ class Player extends HTMLElementBase {
 		this.seek.value = position;
 		State.set(State.key.SEEK, position);
 
-		this.progressBar();
+		this.setProgressBar();
 	}
 	onSeekMouseDown() {
 		this.seek.setAttribute('seeking', true);
@@ -201,11 +205,28 @@ class Player extends HTMLElementBase {
 		this.audio.muted = false;
 	}
 
+	// METADATA
+	extractMetadata(src) {
+		const input = new MediaBunny.Input({
+			source: new MediaBunny.UrlSource(src),
+			formats: MediaBunny.ALL_FORMATS,
+		});
+
+		input.getMetadataTags().then((tags) => {
+			this.setAlbumArtist(tags.album, tags.artist);
+			this.setSeek(this.audio.currentTime || 0, tags.duration || this.audio.duration);
+			this.setArtwork(tags.images);
+
+			EventBus.dispatch({ target: this.TARGET, type: EventBus.type.METADATA_UPDATE, data: tags });
+			this.loadingIndicator(false);
+		});
+	}
+
 	// UI STUFF
 	setTitle(title) {
 		this.trackTitle.innerHTML = title || Native.FS.readablePath(State.get(State.key.TRACK));
 		this.trackTitle.setAttribute('title', this.trackTitle.textContent);
-		Native.Window.title(this.trackTitle.textContent);
+		Native.Window.setTitle(this.trackTitle.textContent);
 	}
 	setAlbumArtist(album, artist) {
 		album = album || Native.FS.readablePath(State.get(State.key.CURRENT_DIR)); // default to current dir for no-album-in-metadata case
@@ -213,14 +234,18 @@ class Player extends HTMLElementBase {
 		this.albumArtist.innerHTML = `<strong>${album}</strong> ${artist ? '| ' + artist : ''}`;
 		this.albumArtist.setAttribute('title', this.albumArtist.textContent);
 	}
-	setArtwork(art) {
-		if (art) this.artwork.setAttribute('src', art);
-		this.artwork.classList.toggle('hidden', !art);
+	setArtwork(images) {
+		if (images?.length) {
+			const src = `data:${images[0].mimeType};base64,${images[0].data.toBase64()}`;
+			this.artwork.setAttribute('src', src);
+			Native.Taskbar.setThumbnail(src);
+		}
+		this.artwork.classList.toggle('hidden', !images?.length);
 	}
-	progressBar(force) {
+	setProgressBar(force) {
 		// must take absolute value because the seek value can arbitrarily change (for example, manual seeking or when changing tracks)
 		if (!force && Math.abs(this.seek.value - this.lastProgressBarUpdate) < 1) return;
-		Native.Window.progressBar(this.audio.paused ? 'paused' : 'normal', this.seek.value / this.seek.max * 100);
+		Native.Taskbar.setProgress(this.audio.paused ? 'paused' : 'normal', this.seek.value, this.seek.max);
 		this.lastProgressBarUpdate = this.seek.value;
 	}
 	readableTime(seconds) {
