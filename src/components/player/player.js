@@ -166,6 +166,7 @@ class Player extends HTMLElementBase {
 		else State.set(State.key.VOLUME, val); // update the state otherwise
 
 		this.audio.volume = val;
+		this.volumeLevel.style.setProperty('--value', val);
 		if (val) this.audio.muted = false;
 	}
 	toggleMute() {
@@ -185,6 +186,7 @@ class Player extends HTMLElementBase {
 
 		this.currentPosition.innerHTML = this.readableTime(position);
 		this.seek.value = position;
+		this.seek.style.setProperty('--value', position / this.seek.max);
 		State.set(State.key.SEEK, position);
 
 		this.setProgressBar();
@@ -277,13 +279,13 @@ class Player extends HTMLElementBase {
 			</track-info>
 
 			<!-- default max set to 9999 so that we don't get division by 0 errors when the file starts playing but the metadata didn't yet load -->
-			<input type="range" id="seek" step=".01" max="9999" onmousedown="${this}.onSeekMouseDown()" oninput="${this}.onSeekChange()" onmouseup="${this}.onSeekMouseUp()">
+			<input type="range" id="seek" step=".01" max="9999" onmousedown="${this}.onSeekMouseDown()" oninput="${this}.onSeekChange();" onmouseup="${this}.onSeekMouseUp()">
 
 			<!-- CONTROLS -->
 			<controls>
 				<div class="volume-container">
 					<button id="volume-icon" class="icon i-speaker-high" onclick="${this}.toggleMute()"></button>
-					<input type="range" max="1" step="0.05" id="volume-level" class="volume-slider" oninput="${this}.onVolumeChange()">
+					<input id="volume-level" type="range" max="1" step="0.05" class="volume-slider" oninput="${this}.onVolumeChange();">
 				</div>
 				<button id="repeat-icon" class="icon i-repeat" onclick="${this}.repeat()"></button>
 
