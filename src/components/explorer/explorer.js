@@ -91,10 +91,12 @@ class Explorer extends HTMLElementBase {
 		if (force) this.searchInput.focus({ preventScroll: true });
 	}
 	search() {
-		this.explorer.querySelectorAll('button').toArray().forEach(item => {
-			const matches = item.textContent.fuzzyCompare(this.searchInput.value);
-			item.classList.toggle('hidden', !matches);
-			if (matches) item.innerHTML = this.highlightMatches(item, matches);
+		this.explorer.querySelectorAll('button span').toArray().forEach(item => {
+			setTimeout(() => {
+				const matches = item.textContent.fuzzyCompare(this.searchInput.value);
+				item.parentElement.classList.toggle('hidden', !matches);
+				if (matches) item.innerHTML = this.highlightMatches(item, matches);
+			});
 		});
 	}
 	highlightMatches(element, matches) {
@@ -193,13 +195,14 @@ class Explorer extends HTMLElementBase {
 		`);
 	}
 	#renderItem(file) {
-		return `
-			<button path="${file.path}" ondblclick="${this}.onItemClick(this);"
+		// the <span> is for the search highlight
+		return `<button path="${file.path}" ondblclick="${this}.onItemClick(this);"
 				class="icon ${Native.FS.isDir(file) ? 'i-folder' : 'i-music-note-simple'}
 				${State.get(State.key.TRACK) == file.path ? ' selected' : ''}">
-				${file.name}
-			</button>
-		`.replace(/\t|\n/g, ''); // can't use minify() because it breaks paths that have two or more consecutive spaces
+				<span>${file.name}</span>
+			</button>`
+			// can't use minify() because it breaks paths that have two or more consecutive spaces
+			.replace(/\t|\n/g, '');
 	}
 	#renderCrumb(path) {
 		const label = path.split(Native.FS.PATH_SEPARATOR).pop();
