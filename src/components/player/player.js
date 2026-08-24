@@ -236,9 +236,9 @@ class Player extends HTMLElementBase {
 		this.albumArtist.innerHTML = `<strong>${album}</strong> ${artist ? '| ' + artist : ''}`;
 		this.albumArtist.setAttribute('title', this.albumArtist.textContent);
 	}
-	setArtwork(images) {
-		if (images?.length) {
-			const src = `data:${images[0].mimeType};base64,${images[0].data.toBase64()}`;
+	setArtwork(artwork) {
+		if (artwork?.length) {
+			const src = `data:${artwork[0].mimeType};base64,${artwork[0].data.toBase64()}`;
 			this.artwork.setAttribute('src', src);
 			Native.Taskbar.setThumbnail(src);
 			this.artwork.classList.remove('hidden');

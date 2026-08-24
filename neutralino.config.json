@@ -14,7 +14,7 @@
 	"enableNativeAPI": true,
 	"tokenSecurity": "one-time",
 	"logging": {
-		"enabled": true,
+		"enabled": false,
 		"writeToLogFile": false
 	},
 	"nativeAllowList": [
