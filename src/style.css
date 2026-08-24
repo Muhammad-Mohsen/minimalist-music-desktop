@@ -38,32 +38,9 @@
 	--shadow-accent-inner-2: 4px 4px 8px 0 #13315d inset, -8px -8px 8px 0 #5ea1ff inset;
 }
 
-@property --gradient-stop {
-	syntax: "<percentage>";
-	initial-value: 0%;
-	inherits: false;
-}
-
-/* ATOMICS */
 .row { display: flex; align-items: center; }
 .row.centered { justify-content: center; }
-
-.color-foreground-light { color: var(--foreground-light) }
-.color-foreground { color: var(--foreground) }
-.color-secondary { color: var(--background) }
-
-.font-weight-light { font-weight: 200; }
-.font-weight-regular { font-weight: 400; }
-.font-size-small { font-size: 10px; }
-
-.symbol-large { font-size: 32px; }
-
-.font-family-mono { font-family: 'JetBrains Mono', monospace; }
-
 .blur { filter: blur(3px); }
-
-.trans { transition: .2s; }
-.trans-sl { transition: .35s; }
 
 /* WINDOW */
 body {
@@ -115,15 +92,15 @@ button {
 	outline: none;
 }
 button:not(.fab):hover {
-	--gradient-stop: 100%;
 	box-shadow: -3px -3px 10px 0px #5b656f inset, 6px 6px 15px 0px #24282d inset;
 	color: var(--foreground-light);
 }
 
 .fab {
-	z-index: 1;
+	color: var(--background);
 	box-shadow: var(--shadow-accent-inner), var(--shadow-outer);
 	background: var(--accent);
+	z-index: 1;
 }
 .fab:hover {
 	box-shadow: var(--shadow-accent-inner-hover), 0 0 2px 2px #5b656f;

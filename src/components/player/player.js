@@ -241,8 +241,12 @@ class Player extends HTMLElementBase {
 			const src = `data:${images[0].mimeType};base64,${images[0].data.toBase64()}`;
 			this.artwork.setAttribute('src', src);
 			Native.Taskbar.setThumbnail(src);
+			this.artwork.classList.remove('hidden');
 		}
-		this.artwork.classList.toggle('hidden', !images?.length);
+		else {
+			Native.Taskbar.setThumbnail(images.LOGO);
+			this.artwork.classList.add('hidden');
+		}
 	}
 	setProgressBar(force) {
 		// must take absolute value because the seek value can arbitrarily change (for example, manual seeking or when changing tracks)
@@ -290,7 +294,7 @@ class Player extends HTMLElementBase {
 				<button id="repeat-icon" class="icon i-repeat" onclick="${this}.repeat()"></button>
 
 				<button class="icon i-skip-back" onclick="${this}.playPrev()"></button>
-				<button id="play-pause-button" class="icon fab color-secondary" onclick="${this}.playPause()"></button>
+				<button id="play-pause-button" class="icon fab" onclick="${this}.playPause()"></button>
 				<button class="icon i-skip-forward" onclick="${this}.playNext()"></button>
 
 				<button id="shuffle-icon" class="icon i-shuffle" onclick="${this}.shuffle()"></button>

@@ -167,7 +167,7 @@ music-explorer {
 .expand {
 	margin: 8px auto 4px;
 	scale: 1;
-	transition: all .2s, box-shadow .5s .1s, --gradient-stop .4s, scale .2s .3s ease-in-out;
+	transition: all .2s, box-shadow .5s .1s, scale .2s .3s ease-in-out;
 }
 
 /* [state-expanded="true"] explorer.current { translate: 0; } */
