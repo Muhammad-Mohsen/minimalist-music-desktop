@@ -35,7 +35,7 @@
 			"minWidth": 576,
 			"minHeight": 220,
 			"resizable": false,
-			"center": true,
+			"center": false,
 			"icon": "/src/assets/images/appIcon.png",
 			"borderless": true,
 			"transparent": true,
