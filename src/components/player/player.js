@@ -239,13 +239,19 @@ class Player extends HTMLElementBase {
 	setArtwork(artwork) {
 		if (artwork?.length) {
 			const src = `data:${artwork[0].mimeType};base64,${artwork[0].data.toBase64()}`;
-			this.artwork.setAttribute('src', src);
-			Native.Taskbar.setThumbnail(src);
-			this.artwork.classList.remove('hidden');
+			if (src == this.artwork.getAttribute('src')) return;
+
+			this.artwork.classList.add('hidden');
+			setTimeout(() => {
+				this.artwork.setAttribute('src', src);
+				Native.Taskbar.setThumbnail(src);
+				this.artwork.classList.remove('hidden');
+			}, 200);
 		}
 		else {
 			Native.Taskbar.setThumbnail(images.LOGO);
 			this.artwork.classList.add('hidden');
+			setTimeout(() => this.artwork.setAttribute('src', ''), 200);
 		}
 	}
 	setProgressBar(force) {
@@ -266,7 +272,7 @@ class Player extends HTMLElementBase {
 	loadingIndicator(force) {
 		this.albumArtist.classList.toggle('blur', force);
 		this.duration.classList.toggle('blur', force);
-		if (force) this.artwork.classList.add('hidden');
+		// if (force) this.artwork.classList.add('hidden');
 	}
 
 	initialized() { return State.get(State.key.TRACK) != 'null'; }
